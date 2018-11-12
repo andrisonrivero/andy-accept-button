@@ -7,7 +7,7 @@ if( ! class_exists( 'WP_List_Table' ) ) {
 /**
  * Create a new table class that will extend the WP_List_Table
  */
-class andy_buttons_table extends WP_List_Table
+class andy_buttons_category_table extends WP_List_Table
 {
 
     public function prepare_items()
@@ -36,7 +36,7 @@ class andy_buttons_table extends WP_List_Table
     }
 
     function no_items() {
-      _e( 'There are no buttons to display.' );
+      _e( 'There are no category buttons to display.' );
     }
 
     public function get_hidden_columns()
@@ -50,9 +50,7 @@ class andy_buttons_table extends WP_List_Table
         $columns = array(
             'id'        => 'ID',
             'name'      => 'Name',
-            'category'  => 'Category',
-            'check'     => 'Mode check',
-            'code'      => 'ShortCode',
+            'rol'  => 'User Rol',
         );
         return $columns;
     }
@@ -67,50 +65,42 @@ class andy_buttons_table extends WP_List_Table
       return sprintf('%1$s %2$s', $item['name'], $this->row_actions($actions) );
     }
 
-    function column_code($item) {
-      $actions = array(
-                'copy'      => "<a href='#copy'>Copy</a>"
-            );
-
-      return sprintf('%1$s %2$s', $item['code'], $this->row_actions($actions) );
-    }
-
     public function get_sortable_columns()
     {
-        return array('code' => array('id', false),
-                     'name' => array('name', false),
-                     'check' => array('check', false),
-                     'category' => array('category', false));
+        return array('name' => array('name', false),
+                     'rol' => array('rol', false)
+                    );
     }
 
     private function table_data($s){
 
       global $wpdb;
-      $name = $wpdb->prefix . "button_data";
-      $name2 = $wpdb->prefix . "button_category";
+      $name = $wpdb->prefix . "button_category";
 
       $datas = $wpdb->get_results( "SELECT * FROM $name WHERE name LIKE '%$s%'", OBJECT);
-      $datas2 = $wpdb->get_results( "SELECT id, name FROM $name2", ARRAY_A);
 
-      $category = array();
-
-      foreach ($datas2 as $value) {
-        $category[$value['id']] = $value['name'];
-      }
+      $user_roles = $user_meta->roles;
 
       foreach ( $datas as $index => $data){
 
         ///variables especiales
 
-        $is_check = $data->check_mode ? "<input type='checkbox' checked disabled> True" : 
-                                        "<input type='checkbox' disabled> False";
+        $roles = array();
+
+        foreach (WP_Roles()->roles as $key => $value) {
+           $roles[] = $key;
+        } 
+
+        $rol = "";
+
+        foreach (explode(",", $data->user_rol) as $value) {
+            $rol .= $roles[$value] . "\n";
+        }
 
         ///creacion de tabla
         $data_p[$index]['id'] = $data->id;
         $data_p[$index]['name'] = $data->name;
-        $data_p[$index]['check'] = $is_check;
-        $data_p[$index]['category'] = isset($category[$data->category]) ? $category[$data->category] : 'None';
-        $data_p[$index]['code'] = "<input type='text' readonly value='[button id=\"$data->id\"]'>";
+        $data_p[$index]['rol'] = $rol;
 
       }
       return $data_p;
@@ -121,9 +111,7 @@ class andy_buttons_table extends WP_List_Table
         switch( $column_name ) {
             case 'id':
             case 'name':
-            case 'category':
-            case 'check':
-            case 'code':
+            case 'rol':
                 return $item[ $column_name ];
             default:
                 return print_r( $item, true ) ;
