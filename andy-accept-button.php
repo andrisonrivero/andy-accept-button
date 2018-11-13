@@ -13,6 +13,10 @@
 
     /////Make BD's
 
+    function mydir($add){
+        return plugins_url($add, __FILE__);
+    }
+
     function andy_create_table() {
 
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -28,8 +32,9 @@
                 id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
                 name varchar(100) NOT NULL DEFAULT '',
                 category int(20) NOT NULL DEFAULT '0', 
+                success text(0) NOT NULL DEFAULT '',
                 email_format text(0) NOT NULL DEFAULT '',
-                css text(0) NOT NULL DEFAULT '',
+                style text(0) NOT NULL DEFAULT '',
                 check_mode boolean NOT NULL DEFAULT false,
                 PRIMARY KEY (id)
               ) CHARACTER SET utf8 COLLATE utf8_general_ci;"
@@ -79,26 +84,43 @@
 
     function include_buttons(){
         if(isset($_GET['add']) || isset($_GET['id'])){
-            include('include/buttons-add.php');
+            include('include/button-add.php');
         }else{
-            include('include/buttons-ui.php');
+            include('include/button-ui.php');
         }
     }
 
     function include_category(){
         if(isset($_GET['add']) || isset($_GET['id'])){
-            include('include/buttons-category-add.php');
+            include('include/button-category-add.php');
         }else{
-            include('include/buttons-ui-category.php');
+            include('include/button-ui-category.php');
         }
     }
 
     function include_users(){
         if(isset($_GET['add']) || isset($_GET['id'])){
-            include('include/buttons-ui-data-add.php');
+            include('include/button-ui-data-add.php');
         }else{
-            include('include/buttons-ui-data.php');
+            include('include/button-ui-data.php');
         }
-    }    
+    }
 
+    //////Make Download file
+
+    function template_download_bottom( $template ) {
+       
+        if(isset($_GET['download_info'])){
+            if( file_exists( plugin_dir_path( __FILE__ ) . 'andy-download-generator.php' ) )
+                return plugin_dir_path( __FILE__ ) . 'andy-download-generator.php';
+        }
+        return $template;
+    }
+
+    add_filter( 'template_include', 'template_download_bottom' );
+
+    //////Make ShortCode
+
+    include('andy-shortcode.php');
+    
 ?>

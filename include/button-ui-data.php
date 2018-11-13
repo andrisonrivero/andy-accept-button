@@ -6,7 +6,7 @@
 <div class="wrap">
 
   <h1 class="wp-heading-inline">User's Overview</h1>
-  <a href="./admin.php?page=user-ui&dowload" class="page-title-action">Download all data</a>
+  <a href="<?=get_home_url(null, "?download_info&full")?>" target="_blank" class="page-title-action">Download all data</a>
   <hr class="wp-header-end">
 
     <form action="" method="GET">

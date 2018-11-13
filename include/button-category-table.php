@@ -83,24 +83,10 @@ class andy_buttons_category_table extends WP_List_Table
 
       foreach ( $datas as $index => $data){
 
-        ///variables especiales
-
-        $roles = array();
-
-        foreach (WP_Roles()->roles as $key => $value) {
-           $roles[] = $key;
-        } 
-
-        $rol = "";
-
-        foreach (explode(",", $data->user_rol) as $value) {
-            $rol .= $roles[$value] . "\n";
-        }
-
         ///creacion de tabla
         $data_p[$index]['id'] = $data->id;
         $data_p[$index]['name'] = $data->name;
-        $data_p[$index]['rol'] = $rol;
+        $data_p[$index]['rol'] = $data->user_rol;
 
       }
       return $data_p;

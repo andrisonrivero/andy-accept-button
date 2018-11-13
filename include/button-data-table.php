@@ -107,7 +107,7 @@ class andy_buttons_table extends WP_List_Table
 
         ///creacion de tabla
         $data_p[$index]['id'] = $data->id;
-        $data_p[$index]['name'] = $data->name;
+        $data_p[$index]['name'] = stripcslashes($data->name);
         $data_p[$index]['check'] = $is_check;
         $data_p[$index]['category'] = isset($category[$data->category]) ? $category[$data->category] : 'None';
         $data_p[$index]['code'] = "<input type='text' readonly value='[button id=\"$data->id\"]'>";

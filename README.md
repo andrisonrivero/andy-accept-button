@@ -1,1 +1,0 @@
-# andy-accept-button
