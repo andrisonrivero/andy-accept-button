@@ -1,6 +1,6 @@
 <?php
 
-	function row_function( $atts, $content="" ) {
+	function accept_botton_function( $atts, $content="" ) {
 	    $atts = shortcode_atts( array(
 	        'id' => '1',
 	        'text' => 'Accept'
@@ -26,9 +26,11 @@
 	    ///en caso de haber intresacion anterior
 	    if($user_last != null){
 	    	$info = $button->success;
+	    	if($button->check_mode)
+	    		$info = "<input checked disabled type='checkbox' style='color: ".$button->style->color.";'>". $info;
 	    	$info = str_replace("{date}", date("d/m/Y h:i:s A", $user_last->date_update), $info);
 	    	$info = str_replace("{nickname}", $user->display_name, $info);
-	    	return do_shortcode($content) . "<br>" . stripcslashes($info);
+	    	return "<p>" . do_shortcode($content) . "</p><p>" . stripcslashes($info) . "</p>";
 	    }
 
 	    ///comprobar permisos para intercatuar
@@ -36,14 +38,18 @@
 	    $category = $wpdb->get_row( "SELECT * FROM $name3 WHERE id='$button->category'", OBJECT );
 	    $deny = true;
 	    if($category == null) return "";
-	    foreach (explode(",", $category->user_rol) as $rol) {
-	    	if(in_array($rol, $user->roles))
-	    		$deny = false;
+
+	    $category->user_rol = explode(",", $category->user_rol);
+
+	    if($user->roles === array_intersect($user->roles, $category->user_rol) && 
+	    	$category->user_rol === array_intersect($category->user_rol, $user->roles)){
+	    	$deny = false;
 	    }
+
 	    if($deny) return "";
 
 	    ///en caso de que se esta realizando la incercion
-	    if(isset($_POST['buttonupdate'])){
+	    if(isset($_POST['buttonupdate' . $button->id])){
 	    	$data['id'] = 0;
 	    	$data['user_id'] = get_current_user_id();
 	    	$data['button_name'] = $button->name;
@@ -53,19 +59,22 @@
 	    	
 	    	if($wpdb->insert( $name2, $data) > 0){
 
+	    		$user_last = (OBJECT)$data;
+
 	    		$email_message = base64_decode($button->email_format);
 	    		$email_message = stripcslashes($email_message);
 	    		$email_message = str_replace("{date}", date("d/m/Y h:i:s A", $user_last->date_update), $email_message);
 	    		$email_message = str_replace("{nickname}", $user->display_name, $email_message);
 	    		$email_message = str_replace("{site}", str_replace( array( 'http://', 'https://' ), "", get_permalink()), $email_message);
 
-	    		wp_mail($user->user_email, "Confirm message", $email_message);
+	    		wp_mail($user->user_email, isset($button->style->subject) ? $button->style->subject : "Confirm message", $email_message);
 
-	    		$user_last = (OBJECT)$data;
 		    	$info = $button->success;
+		    	if($button->check_mode)
+	    			$info = "<input checked disabled type='checkbox' style='color: ".$button->style->color.";'>". $info;
 		    	$info = str_replace("{date}", date("d/m/Y h:i:s A", $user_last->date_update), $info);
 		    	$info = str_replace("{nickname}", $user->display_name, $info);
-		    	return do_shortcode($content) . "<br>" . stripcslashes($info);
+		    	return "<p>" . do_shortcode($content) . "</p><p>" . stripcslashes($info) . "</p>";
 	    	}else{
 	    		echo ("<script>
 			              window.alert('Please try again to confirm');
@@ -75,11 +84,11 @@
 
 	    ///en caso de ser la primera interacion
 	    $button->style = json_decode($button->style);
-	    $idb = "mybut" . time();
+	    $idb = "mybut_" . $button->id . "_" . time();
 	    ?>
 	    	<style type="text/css">
 	    		#<?=$idb;?> {
-	    			background-color: <?=$button->style->color;?>;
+	    			<?=$button->check_mode ? "" : "background-";?>color: <?=$button->style->color;?>;
 	    			width: <?=$button->style->width;?>px;
 	    			height: <?=$button->style->height;?>px;
 	    			<?=$button->style->css;?>
@@ -87,13 +96,30 @@
 	    	</style>
 	    <?php
 
+	    if($button->check_mode){
+		    ?>
+				<script type="text/javascript">
+					jQuery(document).ready( function($) {
+						$("#<?=$idb;?>").click(function(){
+							if(confirm("You Accept?")){
+								$(this).parent("form").submit();
+							}
+						});
+					});
+				</script>
+		    <?php
+		}
+
 	    $return = "<form method='POST'>";
-	    $return .= "<button id='$idb' name='buttonupdate'>$atts[text]</button>";
+	    if($button->check_mode)
+	    	$return .= "<span id='$idb'><input type='checkbox' name='buttonupdate$button->id' />$atts[text]</span>";
+	    else
+	    	$return .= "<button id='$idb' name='buttonupdate$button->id'>$atts[text]</button>";
 	    $return .= "</form>";
 
 	    return $return;
 
 	}
-	add_shortcode( 'button', 'row_function' );
+	add_shortcode( 'aabutton', 'accept_botton_function' );
 
 ?>

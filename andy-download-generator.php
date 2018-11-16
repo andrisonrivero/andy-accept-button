@@ -41,7 +41,7 @@
 	    }
 
   	}else{
-		$info = json_decode(base64_decode($_GET['download_info']));
+		$info = (array)json_decode(base64_decode($_GET['download_info']));
   	}
 
   	if( is_array($info)){

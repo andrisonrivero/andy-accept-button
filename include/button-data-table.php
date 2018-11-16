@@ -52,6 +52,7 @@ class andy_buttons_table extends WP_List_Table
             'name'      => 'Name',
             'category'  => 'Category',
             'check'     => 'Mode check',
+            'datau'     => 'User (T/C/N)',
             'code'      => 'ShortCode',
         );
         return $columns;
@@ -80,6 +81,7 @@ class andy_buttons_table extends WP_List_Table
         return array('code' => array('id', false),
                      'name' => array('name', false),
                      'check' => array('check', false),
+                     'datau' => array('datau', false),
                      'category' => array('category', false));
     }
 
@@ -88,11 +90,26 @@ class andy_buttons_table extends WP_List_Table
       global $wpdb;
       $name = $wpdb->prefix . "button_data";
       $name2 = $wpdb->prefix . "button_category";
+      $name3 = $wpdb->prefix . "button_user_data";
 
       $datas = $wpdb->get_results( "SELECT * FROM $name WHERE name LIKE '%$s%'", OBJECT);
       $datas2 = $wpdb->get_results( "SELECT id, name FROM $name2", ARRAY_A);
+      $datas_users = $wpdb->get_results( "SELECT button_name FROM $name3 WHERE rest_mode = 0", ARRAY_A);
 
       $category = array();
+      $user_d = array();
+      $user_t = 0;
+
+      foreach ($datas_users as $datas_user) {
+        if(isset($user_d[$datas_user['button_name']]))
+          $user_d[$datas_user['button_name']]++;
+        else
+          $user_d[$datas_user['button_name']] = 1;
+      }
+
+      foreach ( get_users() as $user ) {
+        $user_t++;
+      }
 
       foreach ($datas2 as $value) {
         $category[$value['id']] = $value['name'];
@@ -110,10 +127,45 @@ class andy_buttons_table extends WP_List_Table
         $data_p[$index]['name'] = stripcslashes($data->name);
         $data_p[$index]['check'] = $is_check;
         $data_p[$index]['category'] = isset($category[$data->category]) ? $category[$data->category] : 'None';
-        $data_p[$index]['code'] = "<input type='text' readonly value='[button id=\"$data->id\"]'>";
-
+        $data_p[$index]['datau'] = $this->dataugenerator($data->category, $data->name);
+        $data_p[$index]['code'] = "<input type='text' readonly value='[aabutton id=\"$data->id\"]'>";
       }
       return $data_p;
+    }
+
+    function dataugenerator($idcategoria, $button){
+      global $wpdb;
+      $user_p = array();
+      $name = $wpdb->prefix . "button_category";
+      $roles = explode(",", $wpdb->get_var("SELECT user_rol FROM $name WHERE id = '$idcategoria'"));
+
+      if($roles == null) return "0/0/0";
+
+      $max = 0;
+      foreach ( get_users(array( 'fields' => array('ID'))) as $user ){
+        $user_d = get_userdata($user->ID);
+        if($roles === array_intersect($roles, $user_d->roles) && $user_d->roles === array_intersect($user_d->roles, $roles)){
+          $max++;
+          $user_p[$user_d->ID] = $user_d->display_name;
+        }
+      }
+      
+      if(count($user_p) == 0) return "0/0/0";
+
+      $cfn = 0;
+      foreach ($user_p as $idu => $name_u) {
+        $name = $wpdb->prefix . "button_user_data";
+        $confirm = $wpdb->get_var("SELECT COUNT(*) FROM $name WHERE rest_mode = 0 && button_name = '$button' && user_id = $idu");
+        if($confirm > 0){
+          $cf = $name_u . "\\n";
+          $cfn += $confirm;
+        }else{
+          $nc = $name_u . "\\n";
+        }
+        $us++;
+      }
+
+        return "$max/<a href='#' onclick='alert(\"$cf\");return false;'>$cfn</a>/<a href='#' onclick='alert(\"$nc\");return false;'>" . ($max - $cfn) . "</a>";
     }
 
     public function column_default( $item, $column_name )
@@ -123,6 +175,7 @@ class andy_buttons_table extends WP_List_Table
             case 'name':
             case 'category':
             case 'check':
+            case 'datau':
             case 'code':
                 return $item[ $column_name ];
             default:

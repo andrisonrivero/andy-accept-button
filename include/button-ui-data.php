@@ -6,17 +6,23 @@
 <div class="wrap">
 
   <h1 class="wp-heading-inline">User's Overview</h1>
-  <a href="<?=get_home_url(null, "?download_info&full")?>" target="_blank" class="page-title-action">Download all data</a>
+  <a href="<?=get_home_url(null, "?download_info&full") . ($_GET['type'] == 'category' ? '&uwc' : '');?>" target="_blank" class="page-title-action">Download all data</a>
   <hr class="wp-header-end">
 
     <form action="" method="GET">
       <?php
-      include('button-data-user-table.php');
+      if($_GET['type'] == 'category')
+        include('button-data-user-table-2.php');
+      else
+        include('button-data-user-table.php');
       $data_user = new andy_buttons_user_table();
       $data_user->prepare_items();
       $data_user->search_box( __( 'Search' ), 'search-box-id' ); 
       ?>
-      <input type="hidden" name="page" value="<?= esc_attr($_REQUEST['page']) ?>"/>
+      <input type="hidden" name="page" value="<?= esc_attr($_REQUEST['page']); ?>"/>
+      <?php if(isset($_GET['type'])) : ?>
+      <input type="hidden" name="type" value="<?=$_GET['type'];?>"/>
+      <?php endif; ?>
     </form>
     <?php $data_user->views(); ?>
     <form action="" method="POST">

@@ -4,7 +4,7 @@
     Plugin URI: http://www.andrison.com.ve
     Description: Accept Button
     Author: Andrison Rivero
-    Version: 1.0.0
+    Version: 1.0.1
     Author URI: http://www.andrison.com.ve
     */
 

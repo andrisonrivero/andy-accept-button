@@ -12,7 +12,7 @@
     $data['category'] = $_POST['category'];
     $data['success'] = $_POST['success'];
     $data['email_format'] = base64_encode($_POST['email_format']);
-    $data['style'] = json_encode(array('color' => $_POST['color'], 'width' => $_POST['width'], 'height' => $_POST['height'], 'css' => base64_encode($_POST['css'])));
+    $data['style'] = json_encode(array('color' => $_POST['color'], 'width' => $_POST['width'], 'height' => $_POST['height'], 'css' => base64_encode($_POST['css']), 'subject' => base64_encode($_POST['subject'])));
     $data['check_mode'] = isset($_POST['check_mode']);
 
     if($_POST['category'] == NULL){
@@ -162,6 +162,7 @@
       <div class="contenedor">
         <div class="objeto">
           <span>Email success send (soport <i>{date}</i>, <i>{nickname}</i>, <i>{site}</i>)</span>
+          <span style="display: block;">Subject: <input style="width: calc(100% - 61px);" type="text" name="subject" value="<?=(isset($data->style->subject) ? stripcslashes($data->style->subject) : 'Thank you {nickname}');?>"></span>
           <?php wp_editor( isset($data->email_format) ? stripcslashes(base64_decode($data->email_format)) : "<p>Thank you {nickname},</p><p>You accept term the {site} the {date}</p><p>Atm: <a href='http://{site}'>{site}</a></p>", "email_format", $settings = array('textarea_rows' => 7) ); ?> 
         </div>
       </div>

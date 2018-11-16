@@ -53,15 +53,20 @@ class andy_buttons_user_table extends WP_List_Table
      $all_url = remove_query_arg('type');
      $views['all'] = "<a href='{$all_url }' {$class} >All</a>";
 
-     //Foo link
-     $foo_url = add_query_arg('type','reset');
+     //reset link
+     $reset_url = add_query_arg('type','reset');
      $class = ($current == 'reset' ? ' class="current"' :'');
-     $views['reset'] = "<a href='{$foo_url}' {$class} >Button's Reset</a>";
+     $views['reset'] = "<a href='{$reset_url}' {$class} >Button's Reset</a>";
 
-     //Bar link
-     $bar_url = add_query_arg('type','confirm');
+     //confirm link
+     $confirm_url = add_query_arg('type','confirm');
      $class = ($current == 'confirm' ? ' class="current"' :'');
-     $views['confirm'] = "<a href='{$bar_url}' {$class} >Button's Confirm</a>";
+     $views['confirm'] = "<a href='{$confirm_url}' {$class} >Button's Confirm</a>";
+
+     //Category link
+     $category_url = add_query_arg('type','category');
+     $class = ($current == 'category' ? ' class="current"' :'');
+     $views['category'] = "<a href='{$category_url}' {$class} >Users with categories</a>";
 
      return $views;
   }
@@ -255,8 +260,6 @@ class andy_buttons_user_table extends WP_List_Table
 
     $sql = "SELECT * FROM $name $where";
 
-    echo $sql;
-
     $datas = $wpdb->get_results( $sql, OBJECT);
 
     $action = $this->current_action();
@@ -266,16 +269,16 @@ class andy_buttons_user_table extends WP_List_Table
       ///variables especiales
 
       if($data->rest_mode > 0){
-        $date_format = "Reset<br><abbr title='Date Reset: " . date("d/m/Y h:i:s a", $data->rest_mode) . "'>" . 
-          date("d/m/Y", $data->date_update) . 
+        $date_format = "Reset<br><abbr title='Date Reset: " . date("d/m/Y h:i:s A", $data->rest_mode) . "'>" . 
+          date("d/m/Y h:i:s A", $data->date_update) . 
         "</abbr>";
-        $date_format_d = "Confirm: " . date("d/m/Y h:i:s a", $data->date_update) . " - Reset: " . date("d/m/Y h:i:s a", $data->rest_mode);
+        $date_format_d = "Confirm: " . date("d/m/Y h:i:s A", $data->date_update) . " - Reset: " . date("d/m/Y h:i:s A", $data->rest_mode);
 
       }else{
-        $date_format = "Confirm<br><abbr title='" . date("d/m/Y h:i:s a", $data->date_update) . "'>" . 
-          date("d/m/Y", $data->date_update) . 
+        $date_format = "Confirm<br><abbr title='" . date("d/m/Y h:i:s A", $data->date_update) . "'>" . 
+          date("d/m/Y h:i:s A", $data->date_update) . 
         "</abbr>";
-         $date_format_d = "Confirm: " . date("d/m/Y h:i:s a", $data->date_update);
+         $date_format_d = "Confirm: " . date("d/m/Y h:i:s A", $data->date_update);
       }      
 
       $user = get_user_by('ID', $data->user_id)->display_name;

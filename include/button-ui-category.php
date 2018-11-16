@@ -53,19 +53,18 @@
   <h1 class="wp-heading-inline">Categories</h1>
   <a href="./admin.php?page=category-ui&add" class="page-title-action">Add category</a>
   <hr class="wp-header-end">
-    <form action="" method="GET">
-      <?php
-      include('button-category-table.php');
-      $category = new andy_buttons_category_table();
-      $category->prepare_items();
-      $category->search_box( __( 'Search' ), 'search-box-id' ); 
-      ?>
-      <input type="hidden" name="page" value="<?= esc_attr($_REQUEST['page']) ?>"/>
-    </form>
-    <?php 
-      $category->display();
+  <form action="" method="GET">
+    <?php
+    include('button-category-table.php');
+    $category = new andy_buttons_category_table();
+    $category->prepare_items();
+    $category->search_box( __( 'Search' ), 'search-box-id' ); 
     ?>
-  </div>
+    <input type="hidden" name="page" value="<?= esc_attr($_REQUEST['page']) ?>"/>
+  </form>
+  <?php $category->display(); ?>
+  <br class="clear">
+</div>
   <script type="text/javascript">
     jQuery(document).ready(function($) {
       $(".code.column-code a").click(function(e) {
@@ -76,5 +75,10 @@
       });
     });
   </script>
+  <style type="text/css">
+    div#wpfooter {
+      bottom: auto !important;
+    }
+  </style>
 
 </div>
