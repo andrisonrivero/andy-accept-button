@@ -30,7 +30,7 @@
 	    		$info = "<input checked disabled type='checkbox' style='color: ".$button->style->color.";'>". $info;
 	    	$info = str_replace("{date}", date("d/m/Y h:i:s A", $user_last->date_update), $info);
 	    	$info = str_replace("{nickname}", $user->display_name, $info);
-	    	return "<p>" . do_shortcode($content) . "</p><p>" . stripcslashes($info) . "</p>";
+	    	return "<p>" . stripcslashes($info) . "</p><p>" . do_shortcode($content) . "</p>";
 	    }
 
 	    ///comprobar permisos para intercatuar
@@ -67,14 +67,14 @@
 	    		$email_message = str_replace("{nickname}", $user->display_name, $email_message);
 	    		$email_message = str_replace("{site}", str_replace( array( 'http://', 'https://' ), "", get_permalink()), $email_message);
 
-	    		wp_mail($user->user_email, isset($button->style->subject) ? $button->style->subject : "Confirm message", $email_message);
+	    		wp_mail($user->user_email, $button->style->subject, $email_message);
 
 		    	$info = $button->success;
 		    	if($button->check_mode)
 	    			$info = "<input checked disabled type='checkbox' style='color: ".$button->style->color.";'>". $info;
 		    	$info = str_replace("{date}", date("d/m/Y h:i:s A", $user_last->date_update), $info);
 		    	$info = str_replace("{nickname}", $user->display_name, $info);
-		    	return "<p>" . do_shortcode($content) . "</p><p>" . stripcslashes($info) . "</p>";
+		    	return "<p>" . stripcslashes($info) . "</p><p>" . do_shortcode($content) . "</p>";
 	    	}else{
 	    		echo ("<script>
 			              window.alert('Please try again to confirm');
@@ -101,9 +101,7 @@
 				<script type="text/javascript">
 					jQuery(document).ready( function($) {
 						$("#<?=$idb;?>").click(function(){
-							if(confirm("You Accept?")){
-								$(this).parent("form").submit();
-							}
+							$(this).parent("form").submit();
 						});
 					});
 				</script>
